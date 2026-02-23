@@ -61,6 +61,15 @@ if __name__ == '__main__':
     model = load_model(config.model)
     if hasattr(config, 'quantize'):
         model = get_quantize_model(model, config)
+        # load_data
+        train_loader, val_loader = load_data(**config.data)
+
+        # Generate calibration data
+        if (config.quantize.quantize_type == 'advanced_ptq' or
+                config.quantize.quantize_type == 'naive_ptq' or
+                (hasattr(config.quantize, 'smoothquant') and config.quantize.smoothquant.enabled)):
+            cali_data = load_calibrate_data(train_loader, cali_batchsize=config.quantize.cali_batchsize)
+            
         # ══════════════════════════════════════════════════════════════════════
         # INJECT OUTLIERS (proof of concept) (cancel;led)
         # ══════════════════════════════════════════════════════════════════════
@@ -93,11 +102,10 @@ if __name__ == '__main__':
             from mqbench.utils.state import disable_all
             disable_all(model)
             from smoothquant import apply_smoothquant_to_prepared_model
-            train_loader, val_loader = load_data(**config.data)
             sq_alpha = config.quantize.smoothquant.alpha if hasattr(config.quantize.smoothquant, 'alpha') else 0.5
             model = apply_smoothquant_to_prepared_model(
                 model,
-                train_loader,
+                cali_data,
                 alpha=sq_alpha,
                 device='cuda'
             )
@@ -105,14 +113,11 @@ if __name__ == '__main__':
             hooks = apply_smoothquant_scaling_hooks(model)
 
     model.cuda()
-    # load_data
-    train_loader, val_loader = load_data(**config.data)
     # evaluate
     if not hasattr(config, 'quantize'):
         evaluate(val_loader, model)
     elif config.quantize.quantize_type == 'advanced_ptq':
         print('begin calibration now!')
-        cali_data = load_calibrate_data(train_loader, cali_batchsize=config.quantize.cali_batchsize)
         from mqbench.utils.state import enable_quantization, enable_calibration_woquantization
         model.eval()
         import torch
@@ -257,7 +262,6 @@ if __name__ == '__main__':
             deploy(model, config)
     elif config.quantize.quantize_type == 'naive_ptq':
         print('begin calibration now!')
-        cali_data = load_calibrate_data(train_loader, cali_batchsize=config.quantize.cali_batchsize)
         from mqbench.utils.state import enable_quantization, enable_calibration_woquantization
         # do activation and weight calibration seperately for quick MSE per-channel for weight one
         model.eval()

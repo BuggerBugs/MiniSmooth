@@ -103,18 +103,13 @@ def apply_smoothquant_to_prepared_model(model, calib_loader, alpha=0.5, device='
     
     for name, module in conv_modules.items():
         hooks.append(module.register_forward_hook(make_hook(name)))
-  
+    
     with torch.no_grad():
         for i, batch in enumerate(calib_loader):
-            if isinstance(batch, (tuple, list)):
-                x = batch[0]
-            else:
-                x = batch
+            x = batch if isinstance(batch, torch.Tensor) else batch[0]
             model(x.to(device))
             if (i + 1) % 10 == 0:
                 print(f"  Processed batch {i+1}")
-            if i >= 15: #Same as calibration images total
-                break
     
     for h in hooks:
         h.remove()
