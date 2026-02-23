@@ -216,13 +216,37 @@ def validate(trt_file, batch_size=64, dataset_path=None):
     # evaluate
     for index, (images, target) in enumerate(val_loader):
         images = images.detach().numpy()
+        # Added for static batch size
+        original_batch_size = images.shape[0]
+
+        # ---- PAD IF NEEDED ----
+        if original_batch_size < batch_size:
+            pad_size = batch_size - original_batch_size
+            pad = np.zeros(
+                (pad_size, *images.shape[1:]),
+                dtype=images.dtype
+            )
+            images = np.concatenate([images, pad], axis=0)
+
         output, infer_time = infer(
             engine,
             images,
-            len(images),
+            batch_size,
             context,
             measure_time=True
         )
+        # ---- REMOVE PADDED RESULTS ----
+        output = output[:original_batch_size]
+        ############################
+
+        #Dynamic batch size impl
+        #output, infer_time = infer(
+        #    engine,
+        #    images,
+        #    len(images),
+        #    context,
+        #    measure_time=True
+        #)
 
         total_infer_time += infer_time
         total_images += images.shape[0]

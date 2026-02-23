@@ -32,7 +32,7 @@ quantize:
         prob: 1.0
     deploy:
         output_path: /home/users/ntu/sooq0001
-        model_name: 'res18_8_8_qlinearrun'
+        model_name: 'res18_8_8_batch16'
         deploy_to_qlinear: True
 model:                    # architecture details
     type: resnet18        # model name

@@ -33,9 +33,9 @@ model:                    # architecture details
     type: resnet50        # model name
     kwargs:
         num_classes: 1000
-    path: /path-of-pretrained
+    path: /home/users/ntu/sooq0001/mydir/resnet18_imagenet.pth.tar
 data:
-    path: /path-of-imagenet
+    path: /home/users/ntu/sooq0001/scratch/ImageNet-ILSVRC2012/
     batch_size: 64
     num_workers: 4
     pin_memory: True

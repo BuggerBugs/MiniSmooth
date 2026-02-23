@@ -10,12 +10,24 @@ from .resnet import (  # noqa: F401
     resnet101, resnet152, resnet_custom
 )
 from .mobilenet_v2 import mobilenet_v2
-
+from torchvision import models
+import timm
 
 def load_model(config):
-    model = globals()[config['type']](**config['kwargs'])
-    checkpoint = torch.load(config.path, map_location='cpu')
-    if config.type == 'mobilenet_v2':
-        checkpoint = checkpoint['model']
-    model.load_state_dict(checkpoint)
+    # Handle ConvNeXt XL
+    if config['type'].startswith('convnext_xlarge'):
+        model = timm.create_model('convnext_xlarge', pretrained=True, **config['kwargs'])
+
+    # Handle ResNet-152
+    elif config['type'].startswith('res152'):
+        model = models.resnet152(weights=models.ResNet152_Weights.IMAGENET1K_V1, **config['kwargs'])
+
+    else:
+        # Fallback for other models registered in MQBench
+        model = globals()[config['type']](**config['kwargs'])
+        checkpoint = torch.load(config.path, map_location='cpu')
+        if config.type == 'mobilenet_v2':
+            checkpoint = checkpoint['model']
+        model.load_state_dict(checkpoint)
+
     return model
