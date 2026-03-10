@@ -36,7 +36,7 @@ quantize:
     deploy:
         output_path: /home/users/ntu/sooq0001
         model_name: 'res18_8_8_NOSQ'
-        deploy_to_qlinear: True
+        deploy_to_qlinear: False
 model:
     type: resnet18
     kwargs:

@@ -33,7 +33,7 @@ quantize:
     deploy:
         output_path: /home/users/ntu/sooq0001
         model_name: 'res152_8_8_batch1'
-        deploy_to_qlinear: True
+        deploy_to_qlinear: False
 model:                    # architecture details
     type: res152        # model name
     kwargs:
