@@ -540,6 +540,16 @@ def ptq_reconstruction(model: GraphModule, cali_data: list, config: dict, graph_
     if graph_module_list is None:
         assert isinstance(fp32_model, torch.fx.GraphModule)
         quant_model = deepcopy_graphmodule(model)
+        ############
+        for name, module in quant_model.named_modules():
+            if hasattr(module, '_smoothquant_inv_scale'):
+                print(f"{name}: num forward_pre_hooks = {len(module._forward_pre_hooks)}")
+
+        for name, module in fp32_model.named_modules():
+            if hasattr(module, '_smoothquant_inv_scale'):
+                print(f"{name}: num forward_pre_hooks = {len(module._forward_pre_hooks)}")
+
+                ############
         nodes = list(quant_model.graph.nodes)
         g2node = getitem2node(quant_model)
         fp32_modules = node2modules(dict(fp32_model.named_modules()), fp32_model.graph.nodes)
@@ -547,6 +557,16 @@ def ptq_reconstruction(model: GraphModule, cali_data: list, config: dict, graph_
         topology_order_by_node = topology_order(quant_model)
     else:
         quant_model = deepcopy_mixedmodule(model, graph_module_list)
+############
+        for name, module in quant_model.named_modules():
+            if hasattr(module, '_smoothquant_inv_scale'):
+                print(f"{name}: num forward_pre_hooks = {len(module._forward_pre_hooks)}")
+
+        for name, module in fp32_model.named_modules():
+            if hasattr(module, '_smoothquant_inv_scale'):
+                print(f"{name}: num forward_pre_hooks = {len(module._forward_pre_hooks)}")
+
+                ############
         nodes = []
         g2node = dict()
         fp32_modules = dict()
@@ -665,7 +685,17 @@ def ptq_reconstruction(model: GraphModule, cali_data: list, config: dict, graph_
             subgraph = extract_subgraph(quant_modules_by_name, layer_node_list,
                                         layer_node_list[-1], g2node)
             logger.info(subgraph.code)
+            # Remove SQ hooks from subgraph before reconstruction
+            #removed_hooks = {}
+            #for name, module in subgraph.named_modules():
+            #    if hasattr(module, '_smoothquant_inv_scale'):
+            #        removed_hooks[name] = dict(module._forward_pre_hooks)
+            #        module._forward_pre_hooks.clear()
             subgraph_reconstruction(subgraph, cached_inps, cached_oups, config)
+            # Restore SQ hooks after reconstruction
+            #for name, module in subgraph.named_modules():
+            #    if name in removed_hooks:
+            #        module._forward_pre_hooks.update(removed_hooks[name])
             for x in layer_node_list:
                 checked_nodes[x] = True
     disable_all(quant_model)
@@ -674,3 +704,5 @@ def ptq_reconstruction(model: GraphModule, cali_data: list, config: dict, graph_
             enable_quantization(quant_modules[node])
             logger.info(f'set the node {node.target} in quant')
     return quant_model
+
+

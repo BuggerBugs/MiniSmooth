@@ -124,9 +124,9 @@ class ONNXQLinearPass(ONNXQNNPass):
                 self.onnx_model.remove_node_purely(node)
                 self.onnx_model.topologize_graph()
 
-    def run(self):
+    def run(self, qmin_max_dict):
         self.onnx_model.topologize_graph()
-        self.format_qlinear_dtype_pass()
+        self.format_qlinear_dtype_pass(qmin_max_dict)
         self.replace_qlinear_layer_pass()
         self.onnx_model.optimize_model()
         # Per-channel QuantizeLinear and DequantizeLinear is supported since opset 13
@@ -138,3 +138,4 @@ class ONNXQLinearPass(ONNXQNNPass):
             logger.critical('The model is invalid: %s' % e)
         output_dir = os.path.dirname(self.onnx_model_path)
         self.onnx_model.save_onnx_model(os.path.join(output_dir, 'onnx_quantized_model.onnx'))
+

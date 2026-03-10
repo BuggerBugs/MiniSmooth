@@ -1,0 +1,14 @@
+model:                    # architecture details
+    type: regnetx_600m       # model name
+    kwargs:
+        num_classes: 1000
+    path: /home/users/ntu/sooq0001/mydir/resnet18_imagenet.pth.tar
+data:
+    path: /home/users/ntu/sooq0001/scratch/ImageNet-ILSVRC2012/
+    batch_size: 64
+    num_workers: 4
+    pin_memory: True
+    input_size: 224
+    test_resize: 256
+process:
+    seed: 1005
