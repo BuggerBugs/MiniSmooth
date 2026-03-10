@@ -127,7 +127,7 @@ def convert_onnx(model: GraphModule, input_shape_dict, dummy_input, onnx_model_p
 def convert_onnx_qlinear(model: GraphModule, onnx_model_path, model_name, **kwargs):
     if kwargs.get('deploy_to_qlinear', False):
         logger.info("Convert to ONNX QLinear.")
-        ONNXQLinearPass(onnx_model_path).run(qmin_max_dict)
+        ONNXQLinearPass(onnx_model_path).run()
 
 
 @register_deploy_function(BackendType.NNIE)
