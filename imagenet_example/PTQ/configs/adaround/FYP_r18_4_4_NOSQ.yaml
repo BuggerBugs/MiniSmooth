@@ -45,4 +45,4 @@ data:
     input_size: 224
     test_resize: 256
 process:
-    seed: 89
+    seed: 1005

@@ -33,7 +33,7 @@ quantize:
     deploy:
         output_path: /home/users/ntu/sooq0001
         model_name: 'convnext_xlarge'
-        deploy_to_qlinear: True
+        deploy_to_qlinear: False
 model:                    # architecture details
     type: convnext_xlarge_8_8        # model name
     kwargs:

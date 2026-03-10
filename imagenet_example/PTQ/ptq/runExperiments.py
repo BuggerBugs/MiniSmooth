@@ -10,7 +10,8 @@ from pathlib import Path
 # ============================================================
 
 DEFAULT_RUN_NAME    = "my_experiment"
-DEFAULT_SEEDS       = [1005, 89, 42, 2000, 2001]
+DEFAULT_SEEDS       = [1005, 89, 42]
+#DEFAULT_SEEDS       = [1005, 89, 42, 2000, 2001]
 DEFAULT_CONFIG_PATH = "../configs/adaround/FYP_CONFIG_FILE.yaml"
 
 # ============================================================
@@ -56,7 +57,7 @@ def main():
     CONFIG_PATH = args.config
     SEEDS       = args.seeds
 
-    run_dir = Path.home() / "FYPRUNS" / RUN_NAME
+    run_dir = Path.home() / "FYPRUN_r50_finaldata" / RUN_NAME
     run_dir.mkdir(parents=True, exist_ok=True)
     print(f"Run directory: {run_dir}")
 
@@ -95,7 +96,7 @@ def main():
             result = subprocess.run(
                 cmd,
                 stdout=log_file,
-                stderr=subprocess.PIPE,
+                stderr=log_file,
                 text=True,
                 env=env
             )
